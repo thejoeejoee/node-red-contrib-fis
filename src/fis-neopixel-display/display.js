@@ -5,9 +5,16 @@ module.exports = function (RED) {
             this.fisNode = RED.nodes.getNode(config.node);
 
             this.on('input', msg => {
+                let payload = {
+                    text: msg.payload
+                };
+
+                if (msg.color)
+                    payload.color = msg.color;
+
                 this.fisNode.publish({
                     app: 'neopixel-display',
-                    payload: {text: msg.payload}
+                    payload,
                 })
 
             });

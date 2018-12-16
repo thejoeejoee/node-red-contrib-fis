@@ -1,0 +1,28 @@
+<script type="text/javascript">
+    RED.nodes.registerType('fis-node', {
+        category: 'config',
+        defaults: {
+            broker: {type: "mqtt-broker", required: true, value: ""},
+            nodeId: {value: "", required: true, validate: RED.validators.regex(/^[a-z0-9]{12}$/i)},
+            name: {},
+        },
+        label: function () {
+            return this.name || this.broker;
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="fis-node">
+    <div class="form-row" id="node-config-row-broker">
+        <label for="node-config-input-broker">MQTT</label>
+        <input type="text" id="node-config-input-broker">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-nodeId">Node ID</label>
+        <input type="text" id="node-config-input-nodeId">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-name">Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+</script>

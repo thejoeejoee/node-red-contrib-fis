@@ -2,9 +2,14 @@
   "name": "node-red-contrib-fis",
   "version": "0.0.1",
   "description": "Node-RED nodes for Fast IoT Solution - easy home monitoring and automation with graphic setup. ",
-  "main": "index.js",
   "repository": "https://github.com/thejoeejoee/node-red-contrib-fis",
   "author": "Josef Kolar (thejoeejoee@gmail.com)",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "node-red": {
+    "nodes": {
+      "fis-neopixel-display": "src/fis-neopixel-display/display.js",
+      "fis-node": "src/fis-node/node.js"
+    }
+  }
 }

@@ -1,0 +1,39 @@
+<script type="text/javascript">
+    RED.nodes.registerType('fis-neopixel-display', {
+        category: 'Fast IoT Solution',
+        color: '#cf8916',
+        defaults: {
+            name: {value: ""},
+            node: {value: "", type: "fis-node"},
+            displayPort: {required: true, validate: RED.validators.number()},
+        },
+        inputs: 1,
+        outputs: 0,
+        icon: "feed.png",
+        label: function () {
+            return this.name || "NeoPixel display";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="fis-neopixel-display">
+    <div class="form-row">
+        <label for="node-input-node">Node</label>
+        <input type="text" id="node-input-node" placeholder="Node">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+
+    <div class="form-row">
+        <label for="node-input-displayPort">Display port</label>
+        <input type="text" id="node-input-displayPort" placeholder="Display port">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="fis-neopixel-display">
+    <p>Node for displaying data on NeoPixel display.</p>
+</script>

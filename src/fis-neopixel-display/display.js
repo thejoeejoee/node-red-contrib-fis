@@ -24,7 +24,8 @@ module.exports = function (RED) {
                 if (msg.color)
                     payload.color = msg.color;
 
-                this.fisNode.publish(this.id, payload);
+                payload.retain = true;
+                this.fisNode.appPublish(this.id, payload, 'text');
             });
         }
     }

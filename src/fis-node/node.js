@@ -6,9 +6,9 @@ module.exports = RED => {
              * @type MQTTBrokerNode
              */
             this.broker = RED.nodes.getNode(config.broker);
-            this.topic = ['', 'node', config.nodeId].join('/');
+            this.topic = ['fis', 'node', config.nodeId].join('/');
             this.broker.connect();
-            this.config('config', 'config', {id: this.id}); // TODO: fuu?
+            // this.config('config', 'config', {id: this.id}); // TODO: fuu?
 
             this.on('close', (removed, done) => {
                 if (removed) {
@@ -20,32 +20,55 @@ module.exports = RED => {
             });
         }
 
-        publish(appId, payload) {
-            return this._publish({
-                app_id: appId,
-                payload,
-            });
-
-        };
-
-        config(app, app_id, config) {
-            console.log('CONFIG', app, app_id, config);
-            this.publish(
+        config(app, appId, config) {
+            console.log('CONFIG', app, appId, config);
+            this.appPublish(
                 'config',
                 {
                     app,
                     config,
-                    app_id,
-                }
+                    app_id: appId,
+                    retain: true,
+                },
+                appId,
             )
         };
 
-        _publish(payload) {
-            console.log('PUBLISH', this.topic, payload);
-            const publish = () => this.broker.publish({
-                topic: this.topic,
-                payload,
-            });
+        appPublish(appId, payload, subtopic = null) {
+            const qos = payload.qos;
+            const retain = payload.retain;
+            delete payload.qos;
+            delete payload.retain;
+
+            return this._publish(
+                ['app', appId, subtopic].filter(_ => _).join('/'),
+                {
+                    app_id: appId,
+                    payload,
+                    qos,
+                    retain,
+                }
+
+            );
+        };
+
+        /**
+         * Publish message to node topic (/node/{hw_node_id}/{nodeTopic}).
+         *
+         * @param payload {Object}
+         * @param nodeTopic {String}
+         * @private
+         */
+        _publish(nodeTopic, payload) {
+            const topic = [this.topic, nodeTopic.replace(/\/+$/, '').replace(/^\/+/, '')].join('/');
+
+            const qos = payload.qos;
+            const retain = payload.retain;
+            delete payload.qos;
+            delete payload.retain;
+
+            console.log('PUBLISH', topic, payload);
+            const publish = () => this.broker.publish({topic, payload, qos, retain});
 
             if (this.broker.connected)
                 publish();

@@ -6,6 +6,8 @@
             name: {value: ""},
             node: {value: "", type: "fis-node"},
             displayPort: {required: true, validate: RED.validators.number()},
+            width: {required: true, validate: RED.validators.number()},
+            height: {required: true, validate: RED.validators.number()},
         },
         align: 'right',
         inputs: 1,
@@ -24,14 +26,23 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-name">Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-
-
-    <div class="form-row">
         <label for="node-input-displayPort">Display port</label>
         <input type="text" id="node-input-displayPort" placeholder="Display port">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-width">Display width</label>
+        <input type="number" id="node-input-width" placeholder="Display width">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-height">Display height</label>
+        <input type="text" id="node-input-height" placeholder="Display height">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
 

@@ -6,8 +6,10 @@ module.exports = RED => {
              * @type MQTTBrokerNode
              */
             this.broker = RED.nodes.getNode(config.broker);
-            this.topic = ['fis', 'node', config.nodeId].join('/');
             this.broker.connect();
+
+            this._publish_topic = ['fis', 'to', config.nodeId].join('/');
+            this._subscribe_topic = ['fis', 'from', config.nodeId].join('/');
             // this.config('config', 'config', {id: this.id}); // TODO: fuu?
 
             this.on('close', (removed, done) => {
@@ -60,7 +62,7 @@ module.exports = RED => {
          * @private
          */
         _publish(nodeTopic, payload) {
-            const topic = [this.topic, nodeTopic.replace(/\/+$/, '').replace(/^\/+/, '')].join('/');
+            const topic = [this._publish_topic, nodeTopic.replace(/\/+$/, '').replace(/^\/+/, '')].join('/');
 
             const qos = payload.qos;
             const retain = payload.retain;

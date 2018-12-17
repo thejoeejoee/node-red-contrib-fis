@@ -1,4 +1,6 @@
 module.exports = RED => {
+    const isUtf8 = require('is-utf8');
+
     class FisNode {
         constructor(config) {
             RED.nodes.createNode(this, config);
@@ -10,6 +12,7 @@ module.exports = RED => {
 
             this._publish_topic = ['fis', 'to', config.nodeId].join('/');
             this._subscribe_topic = ['fis', 'from', config.nodeId].join('/');
+            this.status_cb = null;
             // this.config('config', 'config', {id: this.id}); // TODO: fuu?
 
             this.on('close', (removed, done) => {
@@ -19,6 +22,18 @@ module.exports = RED => {
                     // TODO: something on restart?
                 }
                 done();
+            });
+            this.broker.subscribe([this._subscribe_topic, 'status'].join('/'), 2, (topic, payload) => {
+                if (!this.status_cb) return;
+                if (isUtf8(payload)) payload = payload.toString();
+
+                payload = JSON.parse(payload);
+                if (payload.hasOwnProperty("online")) {
+                    if (payload.online)
+                        this.status_cb({fill: "green", shape: "dot", text: "online"});
+                    else
+                        this.status_cb({fill: "red", shape: "ring", text: "offline"});
+                }
             });
         }
 
@@ -50,7 +65,6 @@ module.exports = RED => {
                     qos,
                     retain,
                 }
-
             );
         };
 

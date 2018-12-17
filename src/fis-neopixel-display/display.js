@@ -10,6 +10,8 @@ module.exports = function (RED) {
              */
             this.fisNode = RED.nodes.getNode(config.node);
 
+            this.fisNode.status_cb = this.status.bind(this);
+
             this.fisNode.config(APP, this.id, {
                 port: config.displayPort,
                 width: config.width,

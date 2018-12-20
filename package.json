@@ -9,6 +9,7 @@
   "node-red": {
     "nodes": {
       "fis-neopixel-display": "src/fis-neopixel-display/display.js",
+      "fis-dht-sensor": "src/fis-dht-sensor/sensor.js",
       "fis-node": "src/fis-node/node.js"
     }
   }

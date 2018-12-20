@@ -4,6 +4,7 @@ module.exports = RED => {
     class FisNode {
         constructor(config) {
             RED.nodes.createNode(this, config);
+
             /**
              * @type MQTTBrokerNode
              */
@@ -38,7 +39,7 @@ module.exports = RED => {
         }
 
         config(app, appId, config) {
-            console.log('CONFIG', app, appId, config);
+            this.debug('CONFIG ' + app + ' ' + appId + ' ' + JSON.stringify(config));
             this.appPublish(
                 'config',
                 {
@@ -60,11 +61,31 @@ module.exports = RED => {
             return this._publish(
                 ['app', appId, subtopic].filter(_ => _).join('/'),
                 {
-                    app_id: appId,
+                    app_id: appId, // TODO: remove app_id from payload, is already in topic
                     payload,
                     qos,
                     retain,
                 }
+            );
+        };
+
+        appSubscribe(appId, callback, subtopic = null, qos = 2, ref = 0) {
+            const topic = [this._subscribe_topic, 'app', appId, subtopic].filter(_ => _).join('/');
+            this.debug('SUBSCRIBE ' + topic);
+
+            return this.broker.subscribe(
+                topic,
+                qos,
+                (topic, payload) => {
+                    if (isUtf8(payload)) payload = payload.toString();
+
+                    try {
+                        callback(topic, JSON.parse(payload));
+                    } catch (e) {
+                        this.warn('Cannot parse ' + typeof payload);
+                    }
+                },
+                ref,
             );
         };
 
@@ -83,7 +104,7 @@ module.exports = RED => {
             delete payload.qos;
             delete payload.retain;
 
-            console.log('PUBLISH', topic, payload);
+            this.debug('PUBLISH ' + topic + ' ' + JSON.stringify(payload));
             const publish = () => this.broker.publish({topic, payload, qos, retain});
 
             if (this.broker.connected)

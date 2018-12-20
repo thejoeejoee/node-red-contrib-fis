@@ -1,0 +1,48 @@
+<script type="text/javascript">
+    RED.nodes.registerType('fis-dht-sensor', {
+        category: 'Fast IoT Solution',
+        color: '#cf8916',
+        defaults: {
+            name: {value: ""},
+            node: {value: "", type: "fis-node"},
+            sensorPort: {required: true, validate: RED.validators.number()},
+            sensorType: {required: true, value: "dht-22"},
+            // TODO: measure quantity
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "feed.png",
+        label: function () {
+            return this.name || "DHT Sensor";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="fis-dht-sensor">
+    <div class="form-row">
+        <label for="node-input-node">Node</label>
+        <input type="text" id="node-input-node" placeholder="Node">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-sensorType">Sensor type</label>
+        <select id="node-input-sensorType">
+            <option value="dht-22">DHT22</option>
+            <option value="dht-11">DHT11</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-sensorPort">Sensor port</label>
+        <input type="text" id="node-input-sensorPort" placeholder="Sensor port">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="fis-dht-sensor">
+    <p>Node for getting data from DHT11/22 sensor.</p>
+</script>

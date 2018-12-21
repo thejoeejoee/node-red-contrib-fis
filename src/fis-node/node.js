@@ -38,6 +38,13 @@ module.exports = RED => {
             });
         }
 
+        /**
+         * Sends purely new or updated config message via service channel to node.
+         *
+         * @param app app identifier
+         * @param appId new app id
+         * @param config configuration
+         */
         config(app, appId, config) {
             this.debug('CONFIG ' + app + ' ' + appId + ' ' + JSON.stringify(config));
             this.appPublish(
@@ -52,6 +59,12 @@ module.exports = RED => {
             )
         };
 
+        /**
+         * Publish message for app specified by app_id (and optionally subtopic)
+         * @param appId id of target app
+         * @param payload message to send (could contain .retain or .qos)
+         * @param subtopic subtopic
+         */
         appPublish(appId, payload, subtopic = null) {
             const qos = payload.qos;
             const retain = payload.retain;
@@ -69,7 +82,18 @@ module.exports = RED => {
             );
         };
 
-        appSubscribe(appId, callback, subtopic = null, qos = 2, ref = 0) {
+        /**
+         * Subscribe callback to app topic (/from/{hw_node_id}/app/{app_id}[/{subtopic}]).
+         * Useful for subscribing specific app on hw node.
+         *
+         * @param appId id of application
+         * @param callback message callback(str topic, Object payload)
+         * @param subtopic optional subtopic
+         * @param qos needed qos
+         * @param ref reference for unsubscribe
+         * @returns {void|*|Promise<PushSubscription>}
+         */
+        appSubscribe(appId, callback, subtopic = null, qos = 1, ref = 0) {
             const topic = [this._subscribe_topic, 'app', appId, subtopic].filter(_ => _).join('/');
             this.debug('SUBSCRIBE ' + topic);
 
@@ -82,7 +106,7 @@ module.exports = RED => {
                     try {
                         callback(topic, JSON.parse(payload));
                     } catch (e) {
-                        this.warn('Cannot parse ' + typeof payload);
+                        this.warn('Cannot parse (' + typeof payload + ') ' + payload);
                     }
                 },
                 ref,
@@ -90,7 +114,7 @@ module.exports = RED => {
         };
 
         /**
-         * Publish message to node topic (/node/{hw_node_id}/{nodeTopic}).
+         * Publish message to node topic (/to/{hw_node_id}/{nodeTopic}).
          *
          * @param payload {Object}
          * @param nodeTopic {String}
@@ -99,8 +123,8 @@ module.exports = RED => {
         _publish(nodeTopic, payload) {
             const topic = [this._publish_topic, nodeTopic.replace(/\/+$/, '').replace(/^\/+/, '')].join('/');
 
-            const qos = payload.qos;
-            const retain = payload.retain;
+            const qos = payload.qos === undefined ? 1 : payload.qos;
+            const retain = payload.retain || false;
             delete payload.qos;
             delete payload.retain;
 

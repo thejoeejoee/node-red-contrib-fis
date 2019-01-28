@@ -9,6 +9,9 @@ module.exports = RED => {
              * @type MQTTBrokerNode
              */
             this.broker = RED.nodes.getNode(config.broker);
+
+            if (!this.broker) return;
+
             this.broker.connect();
 
             this._publish_topic = ['fis', 'to', config.nodeId].join('/');

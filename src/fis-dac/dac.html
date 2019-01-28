@@ -1,0 +1,44 @@
+<script type="text/javascript">
+    RED.nodes.registerType('fis-dac', {
+        category: 'Fast IoT Solution',
+        color: '#cf8916',
+        defaults: {
+            name: {value: ""},
+            node: {value: "", type: "fis-node"},
+            dacPort: {required: true, validate: RED.validators.number()},
+            // TODO: measure quantity
+        },
+        align: "right",
+        inputs: 1,
+        outputs: 0,
+        icon: "serial.png",
+        paletteLabel: "DAC",
+        label: function () {
+            return this.name || "DAC";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="fis-dac">
+    <div class="form-row">
+        <label for="node-input-node">Node</label>
+        <input type="text" id="node-input-node" placeholder="Node">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-dacPort">DAC port</label>
+        <select id="node-input-dacPort">
+            <option value="25">25</option>
+            <option value="26">26</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="fis-dac">
+    <p>Node for using DAC.</p>
+</script>

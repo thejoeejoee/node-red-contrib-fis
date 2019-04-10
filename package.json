@@ -13,5 +13,8 @@
       "fis-dac": "src/fis-dac/dac.js",
       "fis-node": "src/fis-node/node.js"
     }
+  },
+  "dependencies": {
+    "is-utf8": "^0.2.1"
   }
 }

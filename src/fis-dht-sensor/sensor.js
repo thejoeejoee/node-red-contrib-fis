@@ -2,7 +2,6 @@ module.exports = function (RED) {
     const APP = 'dht-sensor';
 
     class DhtSensor {
-
         constructor(config) {
             RED.nodes.createNode(this, config);
             /**
@@ -24,7 +23,6 @@ module.exports = function (RED) {
             }, 'data')
         }
     }
-
 
     RED.nodes.registerType("fis-dht-sensor", DhtSensor);
 };

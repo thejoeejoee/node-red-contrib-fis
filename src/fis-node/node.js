@@ -75,7 +75,7 @@ module.exports = RED => {
             delete payload.retain;
 
             return this._publish(
-                ['app', appId, subtopic].filter(_ => _).join('/'),
+                ['app', appId, subtopic].filter(_ => _).join('/'), // subtopic is optional, filter() is to avoid '//'
                 {
                     app_id: appId, // TODO: remove app_id from payload, is already in topic
                     payload,
@@ -124,7 +124,10 @@ module.exports = RED => {
          * @private
          */
         _publish(nodeTopic, payload) {
-            const topic = [this._publish_topic, nodeTopic.replace(/\/+$/, '').replace(/^\/+/, '')].join('/');
+            const topic = [
+                this._publish_topic,
+                nodeTopic.replace(/\/+$/, '').replace(/^\/+/, '') // strip all redundant slashes from begin or end
+            ].join('/');
 
             const qos = payload.qos === undefined ? 1 : payload.qos;
             const retain = payload.retain || false;

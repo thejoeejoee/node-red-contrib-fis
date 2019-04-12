@@ -20,7 +20,7 @@ module.exports = function (RED) {
 
             this.fisNode.appSubscribe(this.id, (topic, payload) => {
                 this.send(payload);
-            }, 'data')
+            }, 'data');
         }
     }
 

@@ -77,7 +77,6 @@ module.exports = RED => {
             return this._publish(
                 ['app', appId, subtopic].filter(_ => _).join('/'), // subtopic is optional, filter() is to avoid '//'
                 {
-                    app_id: appId, // TODO: remove app_id from payload, is already in topic
                     payload,
                     qos,
                     retain,

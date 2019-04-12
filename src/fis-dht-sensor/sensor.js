@@ -11,7 +11,7 @@ module.exports = function (RED) {
 
             if (!this.fisNode) return;
 
-            this.fisNode.status_cb = this.status.bind(this);
+            this.fisNode.installSubNode(this);
 
             this.fisNode.config(APP, this.id, {
                 port: config.sensorPort,

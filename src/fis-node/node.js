@@ -1,7 +1,9 @@
 module.exports = RED => {
     const isUtf8 = require('is-utf8');
+    const constants = require('./../constants');
 
     class FisNode {
+
         constructor(config) {
             RED.nodes.createNode(this, config);
 
@@ -16,7 +18,7 @@ module.exports = RED => {
 
             this._publish_topic = ['fis', 'to', config.nodeId].join('/');
             this._subscribe_topic = ['fis', 'from', config.nodeId].join('/');
-            this.status_cb = null;
+            this.sub_nodes = [];
             // this.config('config', 'config', {id: this.id}); // TODO: fuu?
 
             this.on('close', (removed, done) => {
@@ -28,16 +30,35 @@ module.exports = RED => {
                 done();
             });
             this.broker.subscribe([this._subscribe_topic, 'status'].join('/'), 2, (topic, payload) => {
-                if (!this.status_cb) return;
                 if (isUtf8(payload)) payload = payload.toString();
 
                 payload = JSON.parse(payload);
                 if (payload.hasOwnProperty("online")) {
+
+                    let status = {};
                     if (payload.online)
-                        this.status_cb({fill: "green", shape: "dot", text: "online"});
+                        status = {fill: "green", shape: "dot", text: "online"};
                     else
-                        this.status_cb({fill: "red", shape: "ring", text: "offline"});
+                        status = {fill: "red", shape: "ring", text: "offline"};
+
+                    this.sub_nodes.map((subnode) => subnode.status(status));
                 }
+            });
+        }
+
+        installSubNode(subNode) {
+            this.sub_nodes.push(subNode);
+            this.on('close', (removed, done) => {
+                if (removed) {
+                    this.config(null, subNode.id, {}, constants.CONFIG.ACTION_REMOVE);
+                    let index = this.sub_nodes.indexOf(subNode);
+                    if (index > -1) {
+                        this.sub_nodes.splice(index, 1);
+                    }
+                } else {
+                    // something on restart?
+                }
+                done();
             });
         }
 
@@ -47,19 +68,24 @@ module.exports = RED => {
          * @param app app identifier
          * @param appId new app id
          * @param config configuration
+         * @param action config action, default is
          */
-        config(app, appId, config) {
+        config(app, appId, config, action = constants.CONFIG.ACTION_INIT) {
             this.debug('CONFIG ' + app + ' ' + appId + ' ' + JSON.stringify(config));
             this.appPublish(
                 'config',
                 {
                     app,
                     config,
+                    action,
                     app_id: appId,
                     retain: true,
                 },
                 appId,
-            )
+            );
+            if (action === constants.CONFIG.ACTION_REMOVE) {
+                this._resetRetain(['app', 'config', appId].join('/'));
+            }
         };
 
         /**
@@ -142,6 +168,21 @@ module.exports = RED => {
                 this.broker.client.on('connect', publish)
 
         };
+
+        _resetRetain(nodeTopic) {
+            const topic = [
+                this._publish_topic,
+                nodeTopic.replace(/\/+$/, '').replace(/^\/+/, '') // strip all redundant slashes from begin or end
+            ].join('/');
+            this.debug('RETAIN RESET ' + topic);
+
+            const publish = () => this.broker.publish({topic, payload: "", qos: 1, retain: true});
+
+            if (this.broker.connected)
+                publish();
+            else
+                this.broker.client.on('connect', publish)
+        }
     }
 
     RED.nodes.registerType("fis-node", FisNode);

@@ -16,6 +16,7 @@ module.exports = function (RED) {
             this.fisNode.config(APP, this.id, {
                 port: config.sensorPort,
                 type: config.sensorType,
+                interval: config.interval,
             });
 
             this.fisNode.appSubscribe(this.id, (topic, payload) => {

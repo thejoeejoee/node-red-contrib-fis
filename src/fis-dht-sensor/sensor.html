@@ -5,9 +5,9 @@
         defaults: {
             name: {value: ""},
             node: {value: "", type: "fis-node"},
+            interval: {value: 10, required: true, validate: RED.validators.number()},
             sensorPort: {required: true, validate: RED.validators.number()},
             sensorType: {required: true, value: "dht-22"},
-            // TODO: measure quantity
         },
         inputs: 0,
         outputs: 1,
@@ -23,6 +23,11 @@
     <div class="form-row">
         <label for="node-input-node">Node</label>
         <input type="text" id="node-input-node" placeholder="Node">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-interval">Measure interval [secs]</label>
+        <input type="number" min="3" id="node-input-interval" placeholder="Interval">
     </div>
 
     <div class="form-row">
@@ -46,33 +51,33 @@
 </script>
 
 <script type="text/x-red" data-help-name="fis-dht-sensor">
-    <p>Node for getting temperature and humidity from DHT11/22 sensor.</p>
+    <p>Node for measuring temperature and humidity with DHT11 or DHT22 sensor.</p>
 
-    <h3>Outputs</h3>
-    <ul class="node-ports">
-        <li>Standard output
-            <dl class="message-properties">
-                <dt>temperature <span class="property-type">float</span></dt>
-                <dd>measured temperature in Celsius degrees from sensor (accuracy based on sensor type)</dd>
-                <dt>humidity <span class="property-type">float</span></dt>
-                <dd>measured humidity (0.0-100.0) from sensor (accuracy based on sensor type)</dd>
-            </dl>
-        </li>
-    </ul>
-<!--
-    <h3>Details</h3>
-    <p><code>msg.payload</code> is used as the payload of the published message.
-        If it contains an Object it will be converted to a JSON string before being sent.
-        If it contains a binary Buffer the message will be published as-is.</p>
-    <p>The topic used can be configured in the node or, if left blank, can be set
-        by <code>msg.topic</code>.</p>
-    <p>Likewise the QoS and retain values can be configured in the node or, if left
-        blank, set by <code>msg.qos</code> and <code>msg.retain</code> respectively.</p>
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>temperature <span class="property-type">float</span></dt>
+        <dd>measured temperature in Celsius degrees from sensor (accuracy based on sensor type)</dd>
+        <dt>humidity <span class="property-type">float</span></dt>
+        <dd>measured humidity (0.0-100.0) from sensor (accuracy based on sensor type)</dd>
+    </dl>
 
-    <h3>References</h3>
-    <ul>
-        <li><a>Twitter API docs</a> - full description of <code>msg.tweet</code> property</li>
-        <li><a>GitHub</a> - the nodes github repository</li>
-    </ul>
--->
+    <p>
+        Measure interval is at minimal 3 seconds - due to DHT sensors limitations.
+    </p>
+    <!--
+        <h3>Details</h3>
+        <p><code>msg.payload</code> is used as the payload of the published message.
+            If it contains an Object it will be converted to a JSON string before being sent.
+            If it contains a binary Buffer the message will be published as-is.</p>
+        <p>The topic used can be configured in the node or, if left blank, can be set
+            by <code>msg.topic</code>.</p>
+        <p>Likewise the QoS and retain values can be configured in the node or, if left
+            blank, set by <code>msg.qos</code> and <code>msg.retain</code> respectively.</p>
+
+    -->
+        <h3>References</h3>
+        <ul>
+            <li><a href="https://learn.adafruit.com/dht/overview">Adafruit DHT overview</a> - short description of DHT sensors</li>
+            <li><a href="https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf">DHT22 datasheet</a> - full DHT22 datasheet</li>
+        </ul>
 </script>

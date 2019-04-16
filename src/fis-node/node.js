@@ -3,7 +3,6 @@ module.exports = RED => {
     const constants = require('./../constants');
 
     class FisNode {
-
         constructor(config) {
             RED.nodes.createNode(this, config);
 
@@ -19,7 +18,6 @@ module.exports = RED => {
             this._publish_topic = ['fis', 'to', config.nodeId].join('/');
             this._subscribe_topic = ['fis', 'from', config.nodeId].join('/');
             this.sub_nodes = [];
-            // this.config('config', 'config', {id: this.id}); // TODO: fuu?
 
             this.on('close', (removed, done) => {
                 if (removed) {
@@ -34,32 +32,66 @@ module.exports = RED => {
 
                 payload = JSON.parse(payload);
                 if (payload.hasOwnProperty("online")) {
-
-                    let status = {};
-                    if (payload.online)
-                        status = {fill: "green", shape: "dot", text: "online"};
-                    else
-                        status = {fill: "red", shape: "ring", text: "offline"};
-
-                    this.sub_nodes.map((subnode) => subnode.status(status));
+                    this.sub_nodes.map((subnode) => {
+                        subnode._node_status = !!payload.online;
+                        subnode.handleStatusChange();
+                    });
                 }
             });
         }
 
-        installSubNode(subNode) {
-            this.sub_nodes.push(subNode);
-            this.on('close', (removed, done) => {
+        /**
+         * Called with subnode (eg sensor node instance, display node instance) registers subnode into fis-node
+         * registry and adds some features:
+         *
+         * *** node/app status watching - result is presented with node-red status() function
+         * *** node removing sends message to config app about node removing - app is also removed on node
+         *
+         * @param node
+         */
+        installSubNode(node) {
+            // insert into known nodes using this FisNode
+            this.sub_nodes.push(node);
+             // assuming all is OK
+            node._node_status = true;
+            node._app_status = true;
+            const app_log_topic = [this._subscribe_topic, 'app', node.id, 'log'].join('/');
+
+            node.handleStatusChange = function () {
+                let status = {};
+                if (!node._node_status) {
+                    status = {fill: "red", shape: "dot", text: "node offline"};
+                } else if (node._node_status && !node._app_status) {
+                    status = {fill: "yellow", shape: "ring", text: "node online, app offline"};
+                } else {
+                    status = {fill: "green", shape: "dot", text: "node online, app online"};
+                }
+                node.status(status);
+            };
+
+            // subscribe for app log channel
+            this.broker.subscribe(app_log_topic, 1, (topic, payload) => {
+                if (isUtf8(payload)) payload = payload.toString();
+                payload = JSON.parse(payload);
+
+                if (payload.level === 'error') node._app_status = false;
+                node.handleStatusChange();
+            }, node.id);
+
+            node.on('close', (removed, done) => {
                 if (removed) {
-                    this.config(null, subNode.id, {}, constants.CONFIG.ACTION_REMOVE);
-                    let index = this.sub_nodes.indexOf(subNode);
+                    this.config(null, node.id, {}, constants.CONFIG.ACTION_REMOVE);
+                    let index = this.sub_nodes.indexOf(node);
                     if (index > -1) {
                         this.sub_nodes.splice(index, 1);
                     }
+                    this.broker.unsubscribe(app_log_topic, node.id);
                 } else {
                     // something on restart?
                 }
                 done();
             });
+            node.handleStatusChange();
         }
 
         /**
@@ -114,15 +146,15 @@ module.exports = RED => {
          * Subscribe callback to app topic (/from/{hw_node_id}/app/{app_id}[/{subtopic}]).
          * Useful for subscribing specific app on hw node.
          *
-         * @param appId id of application
+         * @param node specific node
          * @param callback message callback(str topic, Object payload)
          * @param subtopic optional subtopic
          * @param qos needed qos
          * @param ref reference for unsubscribe
          * @returns {void|*|Promise<PushSubscription>}
          */
-        appSubscribe(appId, callback, subtopic = null, qos = 1, ref = 0) {
-            const topic = [this._subscribe_topic, 'app', appId, subtopic].filter(_ => _).join('/');
+        appSubscribe(node, callback, subtopic = null, qos = 1, ref = 0) {
+            const topic = [this._subscribe_topic, 'app', node.id, subtopic].filter(_ => _).join('/');
             this.debug('SUBSCRIBE ' + topic);
 
             return this.broker.subscribe(
@@ -136,6 +168,9 @@ module.exports = RED => {
                     } catch (e) {
                         this.warn('Cannot parse (' + typeof payload + ') ' + payload);
                     }
+                    // incomming message == app is only, hooray!
+                    node._app_status = true;
+                    node.handleStatusChange();
                 },
                 ref,
             );

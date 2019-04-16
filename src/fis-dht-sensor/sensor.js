@@ -19,7 +19,7 @@ module.exports = function (RED) {
                 interval: config.interval,
             });
 
-            this.fisNode.appSubscribe(this.id, (topic, payload) => {
+            this.fisNode.appSubscribe(this, (topic, payload) => {
                 this.send(payload);
             }, 'data');
         }

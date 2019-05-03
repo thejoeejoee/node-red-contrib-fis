@@ -52,7 +52,7 @@ module.exports = RED => {
         installSubNode(node) {
             // insert into known nodes using this FisNode
             this.sub_nodes.push(node);
-             // assuming all is OK
+            // assuming all is OK
             node._node_status = true;
             node._app_status = true;
             const app_log_topic = [this._subscribe_topic, 'app', node.id, 'log'].join('/');

@@ -20,7 +20,7 @@ module.exports = function (RED) {
 
             this.on('input', msg => {
                 let payload = {
-                    value: msg.payload
+                    value: msg.payload.toString()
                 };
 
                 payload.retain = true;

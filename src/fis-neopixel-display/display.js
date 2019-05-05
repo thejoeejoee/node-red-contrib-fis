@@ -12,6 +12,8 @@ module.exports = function (RED) {
 
             if (!this.fisNode) return;
 
+            this.fisNode.installSubNode(this);
+
             this.fisNode.status_cb = this.status.bind(this);
 
             this.fisNode.config(APP, this.id, {

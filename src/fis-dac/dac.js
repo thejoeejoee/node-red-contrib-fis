@@ -1,3 +1,9 @@
+/**
+ * (C) Copyright 2019 Josef Kolar (xkolar71)
+ * Licenced under MIT.
+ * Part of bachelor thesis.
+ */
+
 module.exports = function (RED) {
     const APP = 'dac';
 
@@ -14,10 +20,12 @@ module.exports = function (RED) {
 
             this.fisNode.installSubNode(this);
 
+            // send configuration to app
             this.fisNode.config(APP, this.id, {
                 port: config.dacPort,
             });
 
+            // on incoming message sends value to app
             this.on('input', msg => {
                 let payload = {
                     value: msg.payload.toString()

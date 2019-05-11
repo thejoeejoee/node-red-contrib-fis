@@ -1,3 +1,9 @@
+/**
+ * (C) Copyright 2019 Josef Kolar (xkolar71)
+ * Licenced under MIT.
+ * Part of bachelor thesis.
+ */
+
 module.exports = function (RED) {
     const APP = 'neopixel-display';
 
@@ -13,8 +19,6 @@ module.exports = function (RED) {
             if (!this.fisNode) return;
 
             this.fisNode.installSubNode(this);
-
-            this.fisNode.status_cb = this.status.bind(this);
 
             this.fisNode.config(APP, this.id, {
                 port: config.displayPort,

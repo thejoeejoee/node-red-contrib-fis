@@ -1,3 +1,9 @@
+/**
+ * (C) Copyright 2019 Josef Kolar (xkolar71)
+ * Licenced under MIT.
+ * Part of bachelor thesis.
+ */
+
 module.exports = RED => {
     const isUtf8 = require('is-utf8');
     const constants = require('./../constants');
@@ -19,14 +25,6 @@ module.exports = RED => {
             this._subscribe_topic = ['fis', 'from', config.nodeId].join('/');
             this.sub_nodes = [];
 
-            this.on('close', (removed, done) => {
-                if (removed) {
-                    // TODO: call config and call remove from node
-                } else {
-                    // TODO: something on restart?
-                }
-                done();
-            });
             this.broker.subscribe([this._subscribe_topic, 'status'].join('/'), 2, (topic, payload) => {
                 if (isUtf8(payload)) payload = payload.toString();
 
@@ -204,6 +202,12 @@ module.exports = RED => {
 
         };
 
+
+        /**
+         * Resets retined message with empy message-
+         * @param nodeTopic topic to reset retain
+         * @private
+         */
         _resetRetain(nodeTopic) {
             const topic = [
                 this._publish_topic,

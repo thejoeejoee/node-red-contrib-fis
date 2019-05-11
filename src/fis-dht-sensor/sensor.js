@@ -1,3 +1,9 @@
+/**
+ * (C) Copyright 2019 Josef Kolar (xkolar71)
+ * Licenced under MIT.
+ * Part of bachelor thesis.
+ */
+
 module.exports = function (RED) {
     const APP = 'dht-sensor';
 
